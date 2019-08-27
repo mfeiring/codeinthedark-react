@@ -30,6 +30,16 @@ const sample = arr => {
 
 let particles = [];
 let particlePointer = 0;
+const unnamed = "Unnamed";
+
+const initialParticipantData = {
+    animate: false,
+    animationKey: 0,
+    content: "",
+    exclamation: "",
+    powerMode: false,
+    streak: 0
+};
 
 const App = () => {
     const [streak, updateStreak] = useState(0);
@@ -38,7 +48,7 @@ const App = () => {
         localStorage.getItem("content") || ""
     );
     const [animationKey, setAnimationKey] = useState(0);
-    const [name, setName] = useState("Unnamed");
+    const [name, setName] = useState(unnamed);
     const [exclamation, setExclamation] = useState(undefined);
     const [viewInstructions, setViewInstructions] = useState(false);
     const [powerMode, setPowerMode] = useState(false);
@@ -55,17 +65,19 @@ const App = () => {
             streakUpdate,
             exclamationUpdate
         ) => {
-            axios.post("http://localhost:9000/text", {
-                animate: animateUpdate,
-                animationKey,
-                content: contentUpdate,
-                exclamation: exclamationUpdate
-                    ? exclamationUpdate
-                    : exclamation,
-                name,
-                powerMode: powerModeUpdate,
-                streak: streakUpdate
-            });
+            if (name !== unnamed) {
+                axios.post("http://localhost:9000/text", {
+                    animate: animateUpdate,
+                    animationKey,
+                    content: contentUpdate,
+                    exclamation: exclamationUpdate
+                        ? exclamationUpdate
+                        : exclamation,
+                    name,
+                    powerMode: powerModeUpdate,
+                    streak: streakUpdate
+                });
+            }
         },
         250
     );
@@ -104,6 +116,11 @@ const App = () => {
         const name = window.prompt("What is your name?");
         setName(name);
         localStorage.setItem("name", name);
+
+        axios.post("http://localhost:9000/text", {
+            ...initialParticipantData,
+            name
+        });
     };
 
     const shake = () => {
